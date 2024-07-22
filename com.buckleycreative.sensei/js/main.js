@@ -8,11 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
     var userInput = document.getElementById('userInput');
     var sendButton = document.getElementById('sendButton');
     var settingsButton = document.getElementById('settingsButton');
-    var backToChatButton = document.getElementById('backToChatButton');
+    var mainViewButton = document.getElementById('mainViewButton');
     var apiKeyInput = document.getElementById('apiKeyInput');
     var saveSettingsButton = document.getElementById('saveSettings');
     var mainView = document.getElementById('mainView');
     var settingsView = document.getElementById('settingsView');
+    var chatHistory = document.getElementById('chatHistory');
 
     // Populate model dropdown
     for (var key in CONFIG.models) {
@@ -34,22 +35,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     sendButton.addEventListener('click', sendMessage);
     settingsButton.addEventListener('click', showSettingsView);
-    backToChatButton.addEventListener('click', showMainView);
+    mainViewButton.addEventListener('click', showMainView);
     saveSettingsButton.addEventListener('click', saveSettings);
 
     function showSettingsView() {
         mainView.classList.add('hidden');
         settingsView.classList.remove('hidden');
+        settingsButton.classList.add('hidden');
+        mainViewButton.classList.remove('hidden');
     }
 
     function showMainView() {
         settingsView.classList.add('hidden');
         mainView.classList.remove('hidden');
+        mainViewButton.classList.add('hidden');
+        settingsButton.classList.remove('hidden');
     }
 
     function saveSettings() {
         apiKey = apiKeyInput.value;
         // Here you might want to save the API key securely
+        alert('Settings saved successfully!');
         showMainView();
     }
 
@@ -63,10 +69,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function addMessageToChat(sender, message) {
-        var chatHistory = document.createElement('div');
-        chatHistory.className = sender + '-message';
-        chatHistory.textContent = message;
-        mainView.insertBefore(chatHistory, userInput);
+        var messageDiv = document.createElement('div');
+        messageDiv.className = sender + '-message';
+        messageDiv.textContent = message;
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
     async function sendToLLM(userMessage) {

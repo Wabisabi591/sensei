@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="6.0" ExtensionBundleId="com.buckleycreative.sensei" ExtensionBundleVersion="1.0.0"
+<ExtensionManifest Version="6.0" ExtensionBundleId="com.buckleycreative.sensei.id" ExtensionBundleVersion="1.0.0"
     ExtensionBundleName="sensei" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <ExtensionList>
-        <Extension Id="com.buckleycreative.sensei" Version="1.0" />
+        <Extension Id="com.buckleycreative.sensei.id" Version="1.0" Debug="1"/>
     </ExtensionList>
     <ExecutionEnvironment>
         <HostList>
             <Host Name="AEFT" Version="[13.0,99.9]" />
-             <Host Name="AEFT" Port="8088"/>
+             <Host Name="AEFT" Port="8089"/>
         </HostList>
         <LocaleList>
             <Locale Code="All" />
@@ -17,7 +17,7 @@
         </RequiredRuntimeList>
     </ExecutionEnvironment>
     <DispatchInfoList>
-        <Extension Id="com.buckleycreative.sensei">
+        <Extension Id="com.buckleycreative.sensei.id">
             <DispatchInfo >
                 <Resources>
                     <MainPath>./index.html</MainPath>
