@@ -3,8 +3,18 @@ document.addEventListener('DOMContentLoaded', function() {
     var currentModel = '';
     var apiKey = '';
 
-    // Populate model dropdown
+    // DOM Elements
     var modelDropdown = document.getElementById('modelDropdown');
+    var userInput = document.getElementById('userInput');
+    var sendButton = document.getElementById('sendButton');
+    var settingsButton = document.getElementById('settingsButton');
+    var backToChatButton = document.getElementById('backToChatButton');
+    var apiKeyInput = document.getElementById('apiKeyInput');
+    var saveSettingsButton = document.getElementById('saveSettings');
+    var mainView = document.getElementById('mainView');
+    var settingsView = document.getElementById('settingsView');
+
+    // Populate model dropdown
     for (var key in CONFIG.models) {
         var option = document.createElement('option');
         option.value = key;
@@ -17,62 +27,49 @@ document.addEventListener('DOMContentLoaded', function() {
         currentModel = modelDropdown.options[0].value;
     }
 
+    // Event Listeners
     modelDropdown.addEventListener('change', function(e) {
         currentModel = e.target.value;
-        updateApiKeyPlaceholder();
     });
 
-    // Navigation
-    document.getElementById('settingsButton').addEventListener('click', showSettingsView);
-    document.getElementById('mainViewButton').addEventListener('click', showMainView);
-
-    document.getElementById('saveSettings').addEventListener('click', function() {
-        apiKey = document.getElementById('apiKeyInput').value;
-        saveApiKey(apiKey);
-        showMainView();
-    });
-
-    document.getElementById('sendButton').addEventListener('click', sendMessage);
-    document.getElementById('runCodeButton').addEventListener('click', runGeneratedCode);
+    sendButton.addEventListener('click', sendMessage);
+    settingsButton.addEventListener('click', showSettingsView);
+    backToChatButton.addEventListener('click', showMainView);
+    saveSettingsButton.addEventListener('click', saveSettings);
 
     function showSettingsView() {
-        document.getElementById('mainView').classList.add('hidden');
-        document.getElementById('settingsView').classList.remove('hidden');
-        document.getElementById('settingsButton').classList.add('hidden');
-        document.getElementById('mainViewButton').classList.remove('hidden');
+        mainView.classList.add('hidden');
+        settingsView.classList.remove('hidden');
     }
 
     function showMainView() {
-        document.getElementById('settingsView').classList.add('hidden');
-        document.getElementById('mainView').classList.remove('hidden');
-        document.getElementById('mainViewButton').classList.add('hidden');
-        document.getElementById('settingsButton').classList.remove('hidden');
+        settingsView.classList.add('hidden');
+        mainView.classList.remove('hidden');
     }
 
-    function updateApiKeyPlaceholder() {
-        var placeholder = currentModel === 'local' ? 'Enter localhost URL' : 'Enter API Key';
-        document.getElementById('apiKeyInput').placeholder = placeholder;
+    function saveSettings() {
+        apiKey = apiKeyInput.value;
+        // Here you might want to save the API key securely
+        showMainView();
     }
 
     function sendMessage() {
-        var userInput = document.getElementById('userInput').value;
-        if (!userInput.trim()) return;
+        var message = userInput.value;
+        if (!message.trim()) return;
 
-        addMessageToChat('user', userInput);
-        sendToLLM(userInput);
-        document.getElementById('userInput').value = '';
+        addMessageToChat('user', message);
+        sendToLLM(message);
+        userInput.value = '';
     }
 
     function addMessageToChat(sender, message) {
-        var chatHistory = document.getElementById('chatHistory');
-        var messageElement = document.createElement('div');
-        messageElement.className = sender + '-message';
-        messageElement.innerText = message;
-        chatHistory.appendChild(messageElement);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+        var chatHistory = document.createElement('div');
+        chatHistory.className = sender + '-message';
+        chatHistory.textContent = message;
+        mainView.insertBefore(chatHistory, userInput);
     }
 
-    async function sendToLLM(userInput) {
+    async function sendToLLM(userMessage) {
         const modelConfig = CONFIG.models[currentModel];
         const endpoint = modelConfig.endpoint;
 
@@ -81,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         let body = {
-            messages: [{ role: 'user', content: userInput }]
+            messages: [{ role: 'user', content: userMessage }]
         };
 
         if (currentModel === 'openai') {
@@ -114,76 +111,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             addMessageToChat('assistant', assistantResponse);
 
-            // Check if the response includes code and display it
-            if (assistantResponse.includes('```')) {
-                const code = assistantResponse.split('```')[1];
-                displayGeneratedCode(code);
-            }
         } catch (error) {
             console.error('Error:', error);
             addMessageToChat('assistant', 'Sorry, there was an error processing your request.');
         }
     }
 
-    function displayGeneratedCode(code) {
-        const codeElement = document.getElementById('generatedCode');
-        codeElement.textContent = code;
-        document.getElementById('codeOutput').style.display = 'block';
-    }
-
-    function runGeneratedCode() {
-        const code = document.getElementById('generatedCode').textContent;
-        csInterface.evalScript(`(function() { ${code} })()`, function(result) {
-            console.log('After Effects script result:', result);
-            addMessageToChat('system', `Code executed. Result: ${result}`);
-        });
-    }
-
-    function saveApiKey(key) {
-        var csInterface = new CSInterface();
-        csInterface.setSystemPath(SystemPath.USER_DATA, function(result) {
-            var fs = require('fs');
-            var path = require('path');
-            var dataPath = path.join(result, 'sensei-ai-chat');
-            
-            if (!fs.existsSync(dataPath)) {
-                fs.mkdirSync(dataPath);
-            }
-            
-            var keyPath = path.join(dataPath, 'api-key.txt');
-            fs.writeFileSync(keyPath, key, 'utf8');
-        });
-    }
-
-    function loadApiKey(callback) {
-        var csInterface = new CSInterface();
-        csInterface.setSystemPath(SystemPath.USER_DATA, function(result) {
-            var fs = require('fs');
-            var path = require('path');
-            var keyPath = path.join(result, 'sensei-ai-chat', 'api-key.txt');
-            
-            if (fs.existsSync(keyPath)) {
-                fs.readFile(keyPath, 'utf8', function(err, data) {
-                    if (err) {
-                        callback(null);
-                    } else {
-                        callback(data);
-                    }
-                });
-            } else {
-                callback(null);
-            }
-        });
-    }
-
     // Initialize
-    updateApiKeyPlaceholder();
-
-    // Load API key on startup
-    loadApiKey(function(key) {
-        if (key) {
-            apiKey = key;
-            document.getElementById('apiKeyInput').value = key;
-        }
-    });
+    showMainView();
 });
