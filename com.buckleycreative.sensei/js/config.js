@@ -1,8 +1,8 @@
 const CONFIG = {
     models: {
         local: {
-            name: "Local LLM",
-            endpoint: "http://localhost:11434/api/chat"
+            name: "Mistral (Ollama)",
+            endpoint: "http://localhost:11434/v1/chat/completions"
         },
         openai: {
             name: "OpenAI",

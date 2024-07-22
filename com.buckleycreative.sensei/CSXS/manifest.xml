@@ -2,12 +2,11 @@
 <ExtensionManifest Version="6.0" ExtensionBundleId="com.buckleycreative.sensei.id" ExtensionBundleVersion="1.0.0"
     ExtensionBundleName="sensei" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <ExtensionList>
-        <Extension Id="com.buckleycreative.sensei.id" Version="1.0" Debug="1"/>
+        <Extension Id="com.buckleycreative.sensei.id" Version="1.0" />
     </ExtensionList>
     <ExecutionEnvironment>
         <HostList>
             <Host Name="AEFT" Version="[13.0,99.9]" />
-             <Host Name="AEFT" Port="8089"/>
         </HostList>
         <LocaleList>
             <Locale Code="All" />
@@ -18,10 +17,17 @@
     </ExecutionEnvironment>
     <DispatchInfoList>
         <Extension Id="com.buckleycreative.sensei.id">
-            <DispatchInfo >
+            <DispatchInfo>
                 <Resources>
                     <MainPath>./index.html</MainPath>
                     <ScriptPath>./jsx/hostscript.jsx</ScriptPath>
+                    <CEFCommandLine>
+                        <Parameter>--enable-nodejs</Parameter>
+                        <Parameter>--mixed-context</Parameter>
+                        <Parameter>--allow-file-access-from-files</Parameter>
+                        <Parameter>--allow-file-access</Parameter>
+                        <Parameter>--disable-web-security</Parameter>
+                    </CEFCommandLine>
                 </Resources>
                 <Lifecycle>
                     <AutoVisible>true</AutoVisible>
@@ -36,7 +42,24 @@
                         </Size>
                     </Geometry>
                 </UI>
+                <Host Name="AEFT" />
             </DispatchInfo>
         </Extension>
     </DispatchInfoList>
+    <Author>Buckley Creative</Author>
+    <ExtensionPath>./</ExtensionPath>
+    <CSXSVersion>7.0</CSXSVersion>
+    <CodeDependencies />
+    <CSXSPolicyFile>
+        <PolicyContent>
+            <![CDATA[
+                <cross-domain-policy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.adobe.com/xml/schemas/PolicyFile.xsd">
+                    <allow-access-from domain="*"/>
+                    <site-control permitted-cross-domain-policies="all"/>
+                    <allow-http-request-headers-from domain="*" headers="*"/>
+                </cross-domain-policy>
+            ]]>
+        </PolicyContent>
+        <PolicyContentType>XML</PolicyContentType>
+    </CSXSPolicyFile>
 </ExtensionManifest>

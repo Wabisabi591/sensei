@@ -1,7 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
     var csInterface = new CSInterface();
-    var currentModel = '';
+    var currentModel = 'local'; // Default to local Mistral
     var apiKey = '';
+
+    // Configuration
+    const CONFIG = {
+        models: {
+            local: {
+                name: "Mistral (Local)",
+                endpoint: "http://localhost:11434/v1/chat/completions"
+            },
+            openai: {
+                name: "OpenAI",
+                endpoint: "https://api.openai.com/v1/chat/completions"
+            }
+        }
+    };
 
     // DOM Elements
     var modelDropdown = document.getElementById('modelDropdown');
@@ -21,11 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
         option.value = key;
         option.textContent = CONFIG.models[key].name;
         modelDropdown.appendChild(option);
-    }
-
-    // Set initial model
-    if (modelDropdown.options.length > 0) {
-        currentModel = modelDropdown.options[0].value;
     }
 
     // Event Listeners
@@ -85,17 +94,22 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         let body = {
-            messages: [{ role: 'user', content: userMessage }]
+            model: "mistral", // Use the Mistral model for local
+            messages: [
+                { role: "system", content: "You are a helpful assistant." },
+                { role: "user", content: userMessage }
+            ]
         };
 
         if (currentModel === 'openai') {
             headers['Authorization'] = `Bearer ${apiKey}`;
-            body.model = 'gpt-3.5-turbo'; // or your preferred model
-        } else if (currentModel === 'local') {
-            // Adjust as needed for your local model's API
+            body.model = "gpt-3.5-turbo"; // or your preferred OpenAI model
         }
 
         try {
+            console.log('Sending request to:', endpoint);
+            console.log('Request body:', JSON.stringify(body));
+
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: headers,
@@ -103,23 +117,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (!response.ok) {
+                const errorBody = await response.text();
+                console.error('Response not OK:', response.status, errorBody);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
-            
-            let assistantResponse;
-            if (currentModel === 'openai') {
-                assistantResponse = data.choices[0].message.content;
-            } else if (currentModel === 'local') {
-                // Parse the response based on your local model's output format
-                assistantResponse = data.response; // Adjust this based on your local model's response structure
-            }
+            console.log('Response data:', data);
 
+            let assistantResponse = data.choices[0].message.content;
             addMessageToChat('assistant', assistantResponse);
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Detailed error:', error);
             addMessageToChat('assistant', 'Sorry, there was an error processing your request.');
         }
     }
