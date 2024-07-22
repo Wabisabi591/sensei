@@ -8,25 +8,28 @@
 <body>
     <div id="content">
         <h1>s e n s e i</h1>
-        
+
         <div id="mainView">
-            <div id="modelSelection">
-                <select id="modelDropdown">
-                    <!-- Options will be populated dynamically by JavaScript -->
-                </select>
-            </div>
+            <select id="modelDropdown">
+                <!-- Options will be populated by JavaScript -->
+            </select>
 
             <div id="chatContainer">
                 <div id="chatHistory"></div>
-                <textarea id="userInput" rows="3" placeholder="Enter your message..."></textarea>
+                <textarea id="userInput" placeholder="Enter your message..."></textarea>
                 <button id="sendButton">Send</button>
+            </div>
+
+            <div id="codeOutput" style="display: none;">
+                <h3>Generated Code:</h3>
+                <pre id="generatedCode"></pre>
+                <button id="runCodeButton">Run in After Effects</button>
             </div>
         </div>
 
         <div id="settingsView" class="hidden">
             <h2>Settings</h2>
-            <label for="apiKeyInput">API Key or URL:</label>
-            <input type="text" id="apiKeyInput" placeholder="Enter API Key or URL">
+            <input type="text" id="apiKeyInput" placeholder="API Key or URL:">
             <button id="saveSettings">Save</button>
         </div>
 
@@ -36,8 +39,8 @@
         </div>
     </div>
 
-    <script src="js/CSInterface.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/main.js"></script>
+    <script src="CSInterface.js"></script>
+    <script src="config.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>

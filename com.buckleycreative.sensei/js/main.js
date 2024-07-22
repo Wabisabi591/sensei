@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('saveSettings').addEventListener('click', function() {
         apiKey = document.getElementById('apiKeyInput').value;
+        saveApiKey(apiKey);
         showMainView();
-        // Here you might want to save the API key securely
     });
 
     document.getElementById('sendButton').addEventListener('click', sendMessage);
@@ -139,6 +139,51 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function saveApiKey(key) {
+        var csInterface = new CSInterface();
+        csInterface.setSystemPath(SystemPath.USER_DATA, function(result) {
+            var fs = require('fs');
+            var path = require('path');
+            var dataPath = path.join(result, 'sensei-ai-chat');
+            
+            if (!fs.existsSync(dataPath)) {
+                fs.mkdirSync(dataPath);
+            }
+            
+            var keyPath = path.join(dataPath, 'api-key.txt');
+            fs.writeFileSync(keyPath, key, 'utf8');
+        });
+    }
+
+    function loadApiKey(callback) {
+        var csInterface = new CSInterface();
+        csInterface.setSystemPath(SystemPath.USER_DATA, function(result) {
+            var fs = require('fs');
+            var path = require('path');
+            var keyPath = path.join(result, 'sensei-ai-chat', 'api-key.txt');
+            
+            if (fs.existsSync(keyPath)) {
+                fs.readFile(keyPath, 'utf8', function(err, data) {
+                    if (err) {
+                        callback(null);
+                    } else {
+                        callback(data);
+                    }
+                });
+            } else {
+                callback(null);
+            }
+        });
+    }
+
     // Initialize
     updateApiKeyPlaceholder();
+
+    // Load API key on startup
+    loadApiKey(function(key) {
+        if (key) {
+            apiKey = key;
+            document.getElementById('apiKeyInput').value = key;
+        }
+    });
 });
